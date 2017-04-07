@@ -44,7 +44,7 @@ public class PointerTest : MonoBehaviour {
         }
         _tipInstance.transform.SetParent(arcParentObject.transform);
         _tipInstance.transform.localScale = Vector3.one;
-        _tipInstance.SetActive(false);
+        _tipInstance.SetActive(true);
     }
 
     void Update() {
@@ -54,6 +54,14 @@ public class PointerTest : MonoBehaviour {
             pointer_yaw += Input.GetAxis("Mouse X") * PointSensitivity;
             Controller.localRotation = Quaternion.Euler(pointer_pitch, pointer_yaw, 0);
         }
+
+        if(_tipInstance != null && _tipInstance.activeSelf)
+        {
+            _tipInstance.transform.position = _destination+(_destinationNormal*0.05f);
+            _tipInstance.transform.rotation = Quaternion.identity;
+
+        }
+        CalculateLine();
         
     }
 
@@ -98,6 +106,7 @@ public class PointerTest : MonoBehaviour {
                     positions1.Add(hit.point);
 					_destinationNormal = hit.normal;
                     hitObject = true;
+                    
 					//	And we're done
 					break;
 				}
@@ -109,8 +118,13 @@ public class PointerTest : MonoBehaviour {
 
                 totalDistance1 += length;
                 positions1.Add(currentPosition);
-
         }
+
+        if(!hitObject) {
+            _destination = lastPosition;
+            _destinationNormal = Vector3.zero;
+        }
+
         _lineRenderer.enabled = true;
         _destination = positions1[positions1.Count-1];
         _lineRenderer.SetColors(goodSpotCol, goodSpotCol);
@@ -120,10 +134,8 @@ public class PointerTest : MonoBehaviour {
 		_lineRenderer.material.mainTextureScale = new Vector2((totalDistance1*matScale)/_vrPlayArea.localScale.magnitude, 1);
 		_lineRenderer.material.mainTextureOffset = new Vector2(_lineRenderer.material.mainTextureOffset.x+texMovementSpeed.x, _lineRenderer.material.mainTextureOffset.y+texMovementSpeed.y);
         
-        if(hitObject) {
-            //Instantiate tip object.
-            
-        }
+        if( _tipInstance != null) _tipInstance.SetActive(true);
+
 
     }
 }
